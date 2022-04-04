@@ -3,6 +3,10 @@ document.addEventListener('DOMContentLoaded', () => { //Fires when html is fully
   let squares = Array.from(document.querySelectorAll('.grid div'))
   const ScoreDisplay = document.querySelector('#score')
   const startBtn = document.querySelector('#start-button')
+  const heightText = document.querySelector('#height')
+  const bumpinessText = document.querySelector('#bumpiness')
+  const holesText = document.querySelector('#holes')
+  const height = 20
   const width = 10
   let nextRandom = 0
   let gameStarted = false
@@ -94,6 +98,7 @@ document.addEventListener('DOMContentLoaded', () => { //Fires when html is fully
       displayShape()
       addScore()
       gameOver()
+      statsHelper()
     }
   }
 
@@ -105,7 +110,6 @@ document.addEventListener('DOMContentLoaded', () => { //Fires when html is fully
     else if (e.keyCode === 40) moveDown()
     else if (e.keyCode === 32) forceDown()
   }
-  document.addEventListener('keydown', control)
 
   //move the tetromino down
   function moveDown() {
@@ -152,8 +156,6 @@ document.addEventListener('DOMContentLoaded', () => { //Fires when html is fully
     draw()
   }
 
-
-
   //show up-next tetromino in mini-grid display
   const displaySquares = document.querySelectorAll('.mini-grid div')
   const miniGridWidth = 4
@@ -187,17 +189,19 @@ document.addEventListener('DOMContentLoaded', () => { //Fires when html is fully
   startBtn.addEventListener('click', () => {
     if (timerId) {
       clearInterval(timerId)
+      document.removeEventListener('keydown', control)
       timerId = null
     } else {
       draw()
       timerId = setInterval(moveDown, 500)
+      document.addEventListener('keydown', control)
       if (!gameStarted) { //if the game is just now starting, create a random shape. prevents exploit from pausing and unpausing to change shape.
         nextRandom = Math.floor(Math.random()*theTetrominos.length)
         displayShape()
         gameStarted = true
       }
     }
-    startBtn.blur()
+    startBtn.blur() //removes focus from button to prevent pausing by spacebar (force drop)
   })
 
   //add score and remove completed rows
@@ -229,9 +233,76 @@ document.addEventListener('DOMContentLoaded', () => { //Fires when html is fully
     }
   }
 
+
+  //AI HELPER FUNCTIONS
+  function getHeight(){
+    for (let i = 0; i < 209; i++){
+      if (squares[i].classList.contains('taken')) {
+        heightText.innerHTML = (height - Math.floor(i / width)) //current level. height - (index found / width)
+        break 
+      }
+    }
+  }
+
+  function getBumpiness(){
+    //find height of first column,  add the abs() difference of height to the next column, continue
+    totalBumpiness = 0
+    let newColumnHeight = 0
+    let pastColumnHeight = -1
+    for (let column = 0; column < 9; column++){
+      for (let i = column; i < 209; i += width) { //i goes to 209 (height * width + width) in order to account for the '0' height floor
+        if (squares[i].classList.contains('taken')) {
+          newColumnHeight = (height - Math.floor(i / width)) //current height formula
+          if (pastColumnHeight != -1){ //let it run once before doing math
+            totalBumpiness += Math.abs(newColumnHeight - pastColumnHeight)
+          }
+          pastColumnHeight = newColumnHeight
+          break //exit this column
+        }
+      }
+    }
+    bumpinessText.innerHTML = totalBumpiness
+  }
+
+  //CURRENTLY ONLY WORKS FOR HOLES 1 BRICK LARGE.
+  function getHoles(){
+    let numHoles = 0
+    for (let i = 0; i <= 199; i++){
+      adjacent = [i - width, i - 1, i + 1, i + width] //all 4 surroundind indicies
+      if (i % width === 0){ //if the index is on the left most wall, ignore any values that would be to the left
+        adjacent = [i - width, i + 1, i + width] //3 remaining indicies
+      }
+      else if (i % width === width - 1) { //same for if the index is on the right most wall
+        adjacent = [i - width, i - 1, i + width]
+      }
+      else if (i < width) { //same for if index is on top row (0 to width)
+        adjacent = [i - 1, i + 1, i + width]
+      }
+      //no need for bottom row logic, the for loop only iterates through the visible rows and there is a 'floor' of taken divs at the bottom.
+      //we do need to remove negative indicies (possible at 0 and 1, when the top row logic triggers and overwrites the left row logic)
+      adjacent = adjacent.filter(index => index >= 0)
+      //if all indicies are filled and the target is NOT filled, add one.
+      if (adjacent.every(index => squares[index].classList.contains('taken')) && !squares[i].classList.contains('taken')) {
+        numHoles++
+      }
+    }
+    holesText.innerHTML = numHoles
+  }
+
+  function statsHelper(){
+    getHeight()
+    getBumpiness()
+    getHoles()
+  }
+
 })
 
 //TODO
 //Adaptive Height and Width
 //Pretty up grid
 //refactor code
+
+//FOR AI - 3 FACTORS (inspired by https://www.youtube.com/watch?v=pXTfgw9A08w&ab_channel=Loonride)
+//number of holes
+//bumpiness
+//total height of structure

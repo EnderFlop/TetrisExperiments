@@ -9,7 +9,10 @@
 
     <h1>TETRIS</h1>
     <h3>Score:<span id='score'>0</span></h3>
-    <div class='button-container'><button id='start-button'>Start / Pause</button></div>
+    <div class='button-container'>
+      <button id='start-button'>Start / Pause</button>
+    </div>
+    <div id='up-next-text'>UP NEXT</div>
 
     <div class='container'>
       <div class='grid'> <!-- Grid is 200 deep, with 10 at the bottom for a floor -->
@@ -225,7 +228,6 @@
         <div class='taken'></div>
         <div class='taken'></div>
       </div>
-
       <div class='mini-grid'>
         <div></div>
         <div></div>
@@ -244,7 +246,14 @@
         <div></div>
         <div></div>
       </div>
+      <div class='stats-container'>
+        <h3>Height: <span id='height'>a</span></h3>
+        <h3>Bumpiness: <span id='bumpiness'>b</span></h3>
+        <h3>Holes: <span id='holes'>c</span></h3>
+      </div>
     </div>
+  
+
 
   </body>
 </html>

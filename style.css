@@ -56,6 +56,20 @@ h3 {
   background-color: #28282B;
 }
 
+.stats-container {
+  margin-top: 84px;
+  margin-left: -84px;
+}
+
+.stats-container h3 {
+  text-align: left;
+}
+
+#up-next-text {
+  text-align: center;
+  margin-left: 248px;
+}
+
 .tetromino {
   background-image: url('./pixel-frame.png');
   background-color: blue;
