@@ -197,6 +197,7 @@ document.addEventListener('DOMContentLoaded', () => { //Fires when html is fully
         gameStarted = true
       }
     }
+    startBtn.blur()
   })
 
   //add score and remove completed rows
@@ -224,6 +225,7 @@ document.addEventListener('DOMContentLoaded', () => { //Fires when html is fully
     if (current.some(index => squares[currentPosition + index].classList.contains('taken'))){
       ScoreDisplay.innerHTML = 'end'
       clearInterval(timerId)
+      document.removeEventListener('keydown', control)
     }
   }
 
