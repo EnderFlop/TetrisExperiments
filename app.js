@@ -130,9 +130,16 @@ document.addEventListener('DOMContentLoaded', () => { //Fires when html is fully
 
   function rotate(){
     undraw()
+    pastRotation = currentRotation
     currentRotation = (currentRotation + 1) % 4
     current = theTetrominos[random][currentRotation]
+    if (current.some(index => squares[currentPosition + index].classList.contains('taken'))) {
+      console.log('cant rotate that!')
+      //current = theTetrominos[random][pastRotation]
+      currentPosition -= width
+    }
     draw()
+    freeze()
   }
 
   //move the tetrominos left, unless it is at the edge or there is a blockage.
@@ -250,7 +257,7 @@ document.addEventListener('DOMContentLoaded', () => { //Fires when html is fully
     let newColumnHeight = 0
     let pastColumnHeight = -1
     for (let column = 0; column < 9; column++){
-      for (let i = column; i < 209; i += width) { //i goes to 209 (height * width + width) in order to account for the '0' height floor
+      for (let i = column; i < height * width + width; i += width) { //i goes to 209 (height * width + width) in order to account for the '0' height floor
         if (squares[i].classList.contains('taken')) {
           newColumnHeight = (height - Math.floor(i / width)) //current height formula
           if (pastColumnHeight != -1){ //let it run once before doing math
@@ -265,25 +272,18 @@ document.addEventListener('DOMContentLoaded', () => { //Fires when html is fully
   }
 
   //CURRENTLY ONLY WORKS FOR HOLES 1 BRICK LARGE.
+
+  // a hole need not be encased. it can be represented by any air pockets underneath another block.
+  // we can do this by scanning each column, waiting until we hit a block, then seeing if there is any air underneath.
+
   function getHoles(){
     let numHoles = 0
-    for (let i = 0; i <= 199; i++){
-      adjacent = [i - width, i - 1, i + 1, i + width] //all 4 surroundind indicies
-      if (i % width === 0){ //if the index is on the left most wall, ignore any values that would be to the left
-        adjacent = [i - width, i + 1, i + width] //3 remaining indicies
-      }
-      else if (i % width === width - 1) { //same for if the index is on the right most wall
-        adjacent = [i - width, i - 1, i + width]
-      }
-      else if (i < width) { //same for if index is on top row (0 to width)
-        adjacent = [i - 1, i + 1, i + width]
-      }
-      //no need for bottom row logic, the for loop only iterates through the visible rows and there is a 'floor' of taken divs at the bottom.
-      //we do need to remove negative indicies (possible at 0 and 1, when the top row logic triggers and overwrites the left row logic)
-      adjacent = adjacent.filter(index => index >= 0)
-      //if all indicies are filled and the target is NOT filled, add one.
-      if (adjacent.every(index => squares[index].classList.contains('taken')) && !squares[i].classList.contains('taken')) {
-        numHoles++
+    for (let column = 0; column < 9; column++){
+      let blockHit = false
+      for (let i = column; i < height * width; i += width) {
+        //if there was a block higher up and this is an air pocket, that's a hole.
+        if (blockHit && !squares[i].classList.contains('taken')) numHoles++
+        else if (!blockHit && squares[i].classList.contains('taken')) blockHit = true
       }
     }
     holesText.innerHTML = numHoles
@@ -298,9 +298,9 @@ document.addEventListener('DOMContentLoaded', () => { //Fires when html is fully
 })
 
 //TODO
-//Adaptive Height and Width
-//Pretty up grid
-//refactor code
+//stats changing bumps grid around
+//fix getHoles()
+//begin work on AI. I think the human parts are good enough, this really is just supposed to be a basis for the AI so things like sliding pieces doesn't matter.
 
 //FOR AI - 3 FACTORS (inspired by https://www.youtube.com/watch?v=pXTfgw9A08w&ab_channel=Loonride)
 //number of holes

@@ -61,13 +61,14 @@ h3 {
   margin-left: -84px;
 }
 
-.stats-container h3 {
+.stats-container h4 {
+  width: 110px;
   text-align: left;
 }
 
 #up-next-text {
   text-align: center;
-  margin-left: 248px;
+  margin-left: 228px;
 }
 
 .tetromino {
