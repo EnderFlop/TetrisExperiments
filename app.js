@@ -182,9 +182,9 @@ document.addEventListener('DOMContentLoaded', () => { //Fires when html is fully
   //display the shape in the mini-grid
   function displayShape() {
     //cleanse the whole minigrid
-    displaySquares.forEach(squares => {
-      squares.classList.remove('tetromino')
-      squares.style.backgroundColor = ''
+    displaySquares.forEach(square => {
+      square.classList.remove('tetromino')
+      square.style.backgroundColor = ''
     })
     upNextTetrominoes[nextRandom].forEach(index => {
       displaySquares[displayIndex + index].classList.add('tetromino')
@@ -271,11 +271,6 @@ document.addEventListener('DOMContentLoaded', () => { //Fires when html is fully
     bumpinessText.innerHTML = totalBumpiness
   }
 
-  //CURRENTLY ONLY WORKS FOR HOLES 1 BRICK LARGE.
-
-  // a hole need not be encased. it can be represented by any air pockets underneath another block.
-  // we can do this by scanning each column, waiting until we hit a block, then seeing if there is any air underneath.
-
   function getHoles(){
     let numHoles = 0
     for (let column = 0; column < 9; column++){
@@ -295,11 +290,18 @@ document.addEventListener('DOMContentLoaded', () => { //Fires when html is fully
     getHoles()
   }
 
+  //AI analysis function.
+  //should copy board and get statistics for every possible placement of piece (every rotation in every column)
+  //save it all in dictionary and get the lowest value. move the piece there on the real board and force drop it.
+  function makeAImove(){
+    let cloneSquares = squares
+    let cloneCurrent = current
+    
+  }
+
 })
 
 //TODO
-//stats changing bumps grid around
-//fix getHoles()
 //begin work on AI. I think the human parts are good enough, this really is just supposed to be a basis for the AI so things like sliding pieces doesn't matter.
 
 //FOR AI - 3 FACTORS (inspired by https://www.youtube.com/watch?v=pXTfgw9A08w&ab_channel=Loonride)
