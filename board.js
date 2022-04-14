@@ -1,11 +1,12 @@
 class Board {
-  constructor(width, height, parentGrid, squares) {
+  constructor(width, height, parentGrid, squares, AIPlayer) {
 
     //BOARD CONSTANTS
     this.width = width
     this.height = height
     this.grid = squares
     this.parentGrid = parentGrid
+    this.AIPlayer = AIPlayer
     this.nextRandom
 
     //HTML FIELDS
@@ -16,9 +17,9 @@ class Board {
     this.displaySquares = document.querySelectorAll('.mini-grid div')
 
     //STATISTICS
-    this.currentHeight
-    this.currentBump
-    this.currentHoles
+    this.currentHeight = 0
+    this.currentBump = 0
+    this.currentHoles = 0
     this.score = 0
 
     //The Tetrominoes
@@ -122,10 +123,12 @@ class Board {
       this.current = this.theTetrominos[this.random][this.currentRotation]
       this.currentPosition = 4
       this.draw()
-      this.displayShape()
-      this.addScore()
-      this.gameOver()
       this.statsHelper()
+      if (!this.AIPlayer) {
+        this.addScore() //only remove lines if on the actual board
+        this.displayShape() //only waste time redrawing shape once a block
+        this.gameOver() //gameover checked after block placed in main
+      }
     }
   }
 
@@ -137,13 +140,13 @@ class Board {
     this.freeze()
   }
 
-  forceDown(current) {
+  forceDown() {
     while (!this.current.some(index => this.grid[this.currentPosition + index + this.width].classList.contains('taken'))) {
-      this.undraw(current)
+      this.undraw()
       this.currentPosition += this.width
-      this.draw(current)
+      this.draw()
     }
-    this.freeze(current)
+    this.freeze()
   }
 
   rotate(){
@@ -206,7 +209,9 @@ class Board {
     if (this.current.some(index => this.grid[this.currentPosition + index].classList.contains('taken'))){
       this.scoreText.innerHTML = 'end'
       clearInterval(this.timerId)
+      return true
     }
+    return false
   }
 
 
